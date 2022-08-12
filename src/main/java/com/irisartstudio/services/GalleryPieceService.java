@@ -20,12 +20,14 @@ public class GalleryPieceService {
 		return galleryPieceRepository.findAll();
 	}
 	
+	/*
 	public void uploadGalleryPiece(String title, String size, String media, Date createdOn, String imageUrl) {
 		
 		GalleryPiece newGalleryPiece = new GalleryPiece(title, size, media, createdOn, imageUrl);
 		this.galleryPieceRepository.save(newGalleryPiece);
 		
 	}
+	*/
 	
 	public GalleryPiece createGalleryPiece(GalleryPiece galleryPiece) {
 		return galleryPieceRepository.save(galleryPiece);
@@ -43,6 +45,7 @@ public class GalleryPieceService {
 	 public GalleryPiece updateGalleryPiece(GalleryPiece galleryPiece) {
 		return galleryPieceRepository.save(galleryPiece);
 	 }
+	 
 	 public void deleteGalleryPiece(Long id) {
 		Optional<GalleryPiece> optionalGalleryPiece = galleryPieceRepository.findById(id);
 		if (optionalGalleryPiece.isPresent()) {

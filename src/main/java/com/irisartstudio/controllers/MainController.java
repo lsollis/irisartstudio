@@ -1,16 +1,10 @@
 package com.irisartstudio.controllers;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-
+import java.text.SimpleDateFormat;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,11 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.irisartstudio.models.GalleryPiece;
 import com.irisartstudio.models.LoginUser;
 import com.irisartstudio.models.User;
+import com.irisartstudio.services.FileService;
 import com.irisartstudio.services.GalleryPieceService;
 import com.irisartstudio.services.ImageService;
 import com.irisartstudio.services.UserService;
@@ -43,9 +36,31 @@ public class MainController {
 	@Autowired
 	private GalleryPieceService galleryPieceService;
 	
-	private static String IMG_FOLDER = "src/main/resources/static/img/";
+	@Autowired
+	private FileService fileService;
+	
+	//private static String IMG_FOLDER = "src/main/resources/static/img/";
+	SimpleDateFormat outputFormatter = new SimpleDateFormat("MM/dd/yyyy");
 	
 	@GetMapping("/")
+	public String homePage() {
+		return "redirect:/landing";
+	}
+	
+	@GetMapping("/landing")
+	public String landingPage(Model model) {
+		
+		model.addAttribute("galleryPieces", galleryPieceService.getAllGalleryPieces());
+		
+		return "landing.jsp";
+	}
+	
+	@GetMapping("/about")
+	public String bio() {
+		return "about.jsp";
+	}
+	
+	@GetMapping("/login")
 	public String home(Model model) {
 		
         // Bind empty User and LoginUser objects to the JSP
@@ -111,14 +126,9 @@ public class MainController {
     }
     
     @GetMapping("/gallery")
-    public String gallery(HttpSession session, Model model) {
-    	if(session.getAttribute("userId") == null) {
-    		return "redirect:/logout";
-    	}
-    	
+    public String gallery(Model model) {
+
     	// get userId from session to cast to Long; session.getAttribute("userId") returns an object
-    	Long userId = (Long) session.getAttribute("userId");
-    	model.addAttribute("user", userService.findById(userId));
     	model.addAttribute("galleryPieces", galleryPieceService.getAllGalleryPieces());
     	
     	return "gallery.jsp";
@@ -133,7 +143,7 @@ public class MainController {
     }
     
     @GetMapping("/gallery/new")
-    public String newBook(Model model, HttpSession session) {
+    public String newBook(Model model, HttpSession session, @ModelAttribute("galleryPiece") GalleryPiece galleryPiece) {
     	
     	User user = userService.findById((Long)session.getAttribute("userId"));
     	model.addAttribute("user", user);
@@ -143,47 +153,26 @@ public class MainController {
     
     @PostMapping("/gallery/create")
     public String createGalleryPiece(
-    		@RequestParam("image") MultipartFile imgFile, 
-    		@RequestParam("title") String title, 
-    		@RequestParam("size") String size, 
-    		@RequestParam("media") String media,
-    		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
-    		HttpSession session,
-    		RedirectAttributes redirectAttr) {
+    		@Valid @ModelAttribute("galleryPiece") GalleryPiece galleryPiece,
+    		BindingResult result,
+    		//RedirectAttributes redirectAttributes,
+    		Model model,
+    		@RequestParam("file") MultipartFile file) {
     	
-    	User user = this.userService.findById((Long)session.getAttribute("userId"));
+    	if(result.hasErrors()) {
+    		model.addAttribute("galleryPiece", galleryPiece);
+    		return "newGalleryPiece.jsp";
+    	}
+
+		this.fileService.save(file);
+    	galleryPiece.setImageUrl("uploads/" + file.getOriginalFilename());
     	
-    	if(imgFile.isEmpty()) {
-    		redirectAttr.addFlashAttribute("fileMessage", "must choose file to upload");
-    	}
-    	if(title.isBlank()) {
-    		redirectAttr.addFlashAttribute("titleMessage", "title must not be blank");
-    	}
-    	if(size.isBlank()) {
-    		redirectAttr.addFlashAttribute("sizeMessage", "size must not be blank");
-    	}
-    	if(media.isBlank()) {
-    		redirectAttr.addFlashAttribute("mediaMessage", "media must not be blank");
-    	}
-    	if(date.equals(null)) {
-    		redirectAttr.addFlashAttribute("dateMessage", "date must not be blank");
-    	}
+    	galleryPiece.setSimpleDate(outputFormatter.format(galleryPiece.getCreatedOn()));
+    	System.out.println("Simple date: " + galleryPiece.getSimpleDate());
     	
-    	try {
-    		// get img file and put in static/img folder
-    		byte[] bytes = imgFile.getBytes();
-    		System.out.println(bytes);
-    		Path path = Paths.get(IMG_FOLDER + imgFile.getOriginalFilename());
-    		System.out.println(path);
-    		Files.write(path, bytes);
-    		// Get URL of file we uploaded
-    		String url = "/img/" + imgFile.getOriginalFilename();
-    		this.galleryPieceService.uploadGalleryPiece(title, size, media, date, url);
-    		
-    	} catch (IOException e) {
-    		e.printStackTrace();
-    	}
+    	this.galleryPieceService.createGalleryPiece(galleryPiece);
     	
+    	//redirectAttributes.addFlashAttribute("message", "gallery piece added");
     	
     	return "redirect:/dashboard";
     }
@@ -201,12 +190,24 @@ public class MainController {
     }
     
     @PutMapping("/gallery/edit/{id}")
-    public String updateGalleryPiece(@Valid @ModelAttribute("galleryPiece") GalleryPiece galleryPiece, BindingResult result, Model model) {
+    public String updateGalleryPiece(
+    		@Valid @ModelAttribute("galleryPiece") GalleryPiece galleryPiece, 
+    		BindingResult result,
+    		Model model,
+    		@RequestParam("file") MultipartFile file) {
     	System.out.println("gallery piece to save to DB: " + galleryPiece.getId());
     	
     	if(result.hasErrors()) {
     		return "editGalleryPiece.jsp";
     	}
+    	
+    	if( !file.isEmpty()) {
+    		this.fileService.save(file);
+        	galleryPiece.setImageUrl("uploads/" + file.getOriginalFilename());
+        	System.out.println("New URL: " + galleryPiece.getImageUrl());
+    	}
+    	
+    	galleryPiece.setSimpleDate(outputFormatter.format(galleryPiece.getCreatedOn()));
     	
     	galleryPieceService.updateGalleryPiece(galleryPiece);
     	return "redirect:/dashboard";

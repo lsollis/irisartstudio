@@ -1,5 +1,7 @@
 package com.irisartstudio.models;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -40,13 +42,16 @@ public class GalleryPiece {
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date createdOn;
 	
-	private String imageUrl; 
+	private String imageUrl;
 	
+	private String simpleDate;
+
 	@Column(updatable=false)
 	private Date uploadedAt;
 	
 	private Date updatedAt;
 	
+	/*
 	public GalleryPiece(@NotBlank(message = "title must not be blank") String title,
 			@NotBlank(message = "size must not be blank") String size,
 			@NotBlank(message = "media type must not be blank") String media,
@@ -61,6 +66,7 @@ public class GalleryPiece {
 		this.uploadedAt = uploadedAt;
 		this.updatedAt = updatedAt;
 	}
+	*/
 
 	public GalleryPiece() {}
 	
@@ -138,5 +144,11 @@ public class GalleryPiece {
 		this.imageUrl = imageUrl;
 	}
 	
-	
+	public String getSimpleDate() {
+		return simpleDate;
+	}
+
+	public void setSimpleDate(String simpleDate) {
+		this.simpleDate = simpleDate;
+	}
 }

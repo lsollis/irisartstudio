@@ -11,7 +11,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>irisartstudio login</title>
 <!-- CSS only -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- for your local CSS -->
@@ -19,14 +20,14 @@
 </head>
 <body>
 	<div class="container">
-		<nav class="navbar navbar-dark navbar-expand-lg bg-primary mb-5">
+		<nav class="navbar navbar-expand-lg mb-5 border-bottom">
 			<div class="container-fluid">
-				<a class="navbar-brand" href="">irisartstudio</a>
+				<a class="h1" href="/landing">irisartstudio</a>
 			</div>
 			<div class="collapse navbar-collapse d-flex" id="navbarNav">
 				<ul class="navbar-nav">
 					<li class="nav-item">
-						<a class="nav-link active" href="">Gallery</a>
+						<a class="nav-link active" href="/gallery">Gallery</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link active" href="">Shop</a>
@@ -35,18 +36,18 @@
 						<a class="nav-link active" href="">Blog</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link active" href="">About/Contact</a>
+						<a class="nav-link active" href="/about">About/Contact</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link active" href="">Login</a>
+						<a class="nav-link active" href="/login">Login</a>
 					</li>
 				</ul>
 			</div>
 		</nav>
 	</div>
 	<div class="container">
-		<div class="row">
-			<div class="col">
+		<div class="row justify-content-md-around">
+			<div class="col-xs-12 col-md-5 p-5 m-2 bg-light">
 				<h2>Login</h2>
 				<form:form action="/login" method="post" modelAttribute="newLogin">
 					<div class="form-group">
@@ -59,10 +60,10 @@
 						<form:input path="password" type="password" class="form-control" />
 						<form:errors path="password" class="text-danger"/>
 					</div>
-					<input type="submit" class="btn btn-primary mt-3" value="Submit" />
+					<input type="submit" class="btn btn-outline-dark mt-3" value="Submit" />
 				</form:form>
 			</div>
-			<div class="col">
+			<div class="col-xs-12 col-md-5 p-5 m-2 bg-light">
 				<h2>New User? Register Here!</h2>
 				<form:form action="/register" method="post" modelAttribute="newUser">
 					<div class="form-group">
@@ -95,10 +96,11 @@
 						<form:input type="password" path="confirm" class="form-control" />
 						<form:errors path="confirm" class="text-danger"/>
 					</div>
-					<input type="submit" class="btn btn-primary mt-3" value="Submit" />
+					<input type="submit" class="btn btn-outline-dark mt-3" value="Submit" />
 				</form:form>
 			</div>
 		</div>
 	</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 </body>
 </html>
