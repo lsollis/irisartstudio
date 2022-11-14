@@ -1,6 +1,6 @@
 # irisartstudio
 
-This project is an art gallery / art sales website. She wants a website where she can showcase and sell her art as well as have students sign up for her art classes.
+This project is an art gallery / art sales website. The artist wants a website where she can showcase and sell her art as well as have students sign up for her art classes.
 Feature List:
 Minimum Viable:
 o	Admin is able to login and CRUD gallery items (art pieces)
